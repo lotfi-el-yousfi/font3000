@@ -23,41 +23,24 @@
                 </template>
                 <v-list-item-title> Home </v-list-item-title>
             </v-list-item>
-            <v-list-item v-for="(item, index) in itemList" :key="index" @click="selectTable(item, 'dashboard')">
+            <v-list-item v-for="(item, index) in EndPointsList" @click="selected_end_point(index)" :key="index">
 
                 <template v-slot:prepend>
                     <v-icon>mdi-table</v-icon>
                 </template>
-                <v-list-item-title>{{ item }} <v-chip size="x-small" color="red" variant="flat">
-                        dashboard
-                    </v-chip></v-list-item-title>
-
-            </v-list-item>
-            <v-list-item v-for="(item, index) in itemList" :key="index" @click="selectTable(item, 'cardsDisplay')">
-
-                <template v-slot:prepend>
-                    <v-icon>mdi-cards-playing-club-multiple-outline </v-icon>
-                </template>
-                <v-list-item-title>{{ item }}
-                    <v-chip size="x-small" color="green" variant="flat">
-                        cards
-                    </v-chip>
-                </v-list-item-title>
-
-
-            </v-list-item>
-            <v-list-item to="/statistic">
-                <template v-slot:prepend>
-                    <v-icon>mdi-chart-pie </v-icon>
-                </template>
                 <v-list-item-title>
-                    <v-chip size="x-small" color="blue" variant="flat">
-                        statistic
+                    {{ item.http_verb }}
+                    <v-chip size="x-small" color="green" variant="flat" style="margin-right: 4px">
+                        {{ item.endpoint }}
+                    </v-chip>
+                    <v-chip v-if="item.require_auth" size="x-small" color="red" variant="flat">
+                        <v-icon>mdi-lock</v-icon>
                     </v-chip>
                 </v-list-item-title>
 
-
             </v-list-item>
+
+
         </v-list>
     </v-navigation-drawer>
 
@@ -68,9 +51,10 @@
 <script setup lang="ts">
 
 
+import { useAppConfigStore } from '@/stores/app';
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useEmployee } from '../stores';
+
 
 import { useTheme } from 'vuetify'
 
@@ -81,15 +65,11 @@ const toggleTheme = () => {
 }
 
 
-const employeeStore = useEmployee()
 
-const isloggedIn = computed(() => {
-
-    return employeeStore.isLoggedIn
-})
 const router = useRouter()
 
-let itemList = "";
+const store = useAppConfigStore();
+let EndPointsList = store.endpointsConfig
 const drawer = ref(false)
 
 const login = () => {
@@ -99,15 +79,12 @@ const login = () => {
 const logout = () => {
 
     localStorage.removeItem('token')
-    employeeStore.setToken('')
     router.push({ name: "login" })
 }
-const selectTable = (table: string, routename: string) => {
-    employeeStore.SetTable(table)
-    router.push({ name: routename })
+const selected_end_point = (index: number) => {
+    store.selected_end_point = index
 }
 
 onUpdated(() => {
-    itemList = employeeStore.Endpoints
 })
 </script>
